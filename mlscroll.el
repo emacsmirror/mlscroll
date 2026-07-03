@@ -219,9 +219,7 @@ EVENT is the mouse scroll event."
   (interactive "e")
   (let ((type (event-basic-type event))
 	(win (posn-window (event-start event))))
-    (mlscroll-scroll-to
-     (if (eq type mouse-wheel-up-event) 'up 'down)
-     nil win)))
+    (mlscroll-scroll-to (if (eq type 'wheel-up) 'up 'down) nil win)))
 
 (defun mlscroll-find-index (posn-string)
   "Find the 0-based index of the POSN-STRING position within the scroll parts."
@@ -268,8 +266,8 @@ START-EVENT is the automatically passed mouse event."
 		       (down-mouse-1 . mlscroll-mouse)
 		       (wheel-left . ignore)
 		       (wheel-right . ignore)
-		       (,mouse-wheel-up-event . mlscroll-wheel)
-		       (,mouse-wheel-down-event . mlscroll-wheel)))
+		       (wheel-up . mlscroll-wheel)
+		       (wheel-down . mlscroll-wheel)))
     help-echo "mouse-1: scroll buffer"
     mlscroll t))
 
