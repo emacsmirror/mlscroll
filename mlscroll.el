@@ -63,16 +63,17 @@ If set to nil, you must arrange to include
 
 (defcustom mlscroll-in-color nil
   "Custom background color for range inside of current window bounds.
-If nil, defaults to scroll-bar foreground color, unless that in
+If nil, defaults to scroll-bar foreground color, unless that is
 unspecified, in which case the background of the region face is
-used."
+used instead."
   :type '(choice
 	  (const :tag "Default" nil)
 	  color))
 
 (defcustom mlscroll-out-color nil
   "Custom background color for range outside of current window bounds.
-If nil, defaults to the default background color."
+If nil, defaults to the default background color (if specified),
+otherwise, lack"
   :type '(choice (const :tag "Default" nil) color))
 
 (defcustom mlscroll-width-chars 12
@@ -355,12 +356,12 @@ Only updates sizes once for a given terminal type (graphical or
 non-graphical), unless FORCE is non-nil."
   (let ((dgp (display-graphic-p frame))
 	(border (or border mlscroll-border)))
-    (when-let (((or force (not (aref mlscroll--size-set (if dgp 1 0)))))
+    (when-let* (((or force (not (aref mlscroll--size-set (if dgp 1 0)))))
 	       (fw (or (and dgp
-			    (if-let ((mlf (face-font 'mode-line)) ; may return nil
-				     (fi (font-info mlf))
-				     (mlw (aref fi 11))
-				     ((> mlw 1))) ; sometimes mode-line font fails
+			    (if-let* ((mlf (face-font 'mode-line)) ; may return nil
+				      (fi (font-info mlf))
+				      (mlw (aref fi 11))
+				      ((> mlw 1))) ; sometimes mode-line font fails
 				mlw))
 		       (with-selected-window (frame-first-window frame)
 			 (default-font-width)))))
@@ -378,6 +379,9 @@ BORDER is the border to use in pixels."
 		     (face-attribute 'default :background))))
     (when (eq in-col 'unspecified)
       (setq in-col (face-attribute 'region :background nil t)))
+    (when (or (eq out-col 'unspecified)
+	      (string= out-col "unspecified-bg"))
+      (setq out-col "black"))
     (if (and border (> border 0))
 	(let ((props `(:box (:line-width ,border) :inverse-video t)))
 	  ;; For box to enclose all 3 segments (with no internal borders)
@@ -424,7 +428,7 @@ Saves any replaced mode-line elements."
 			     (if (atom tree)
 				 (if (eq tree val) (throw 'find-in-tree t))
 			       (find-tree (car tree) val) ; depth-first
-			       (if-let ((siblings (cdr tree)))
+			       (if-let* ((siblings (cdr tree)))
 				   (find-tree siblings val)))))
 		 (find-tree (car mode-line-position) 'mode-line-percent-position))))
     (setf (aref mlscroll-saved 0) (car mode-line-position))
