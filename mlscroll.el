@@ -73,7 +73,7 @@ used instead."
 (defcustom mlscroll-out-color nil
   "Custom background color for range outside of current window bounds.
 If nil, defaults to the default background color (if specified),
-otherwise, lack"
+otherwise, black"
   :type '(choice (const :tag "Default" nil) color))
 
 (defcustom mlscroll-width-chars 12
